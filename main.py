@@ -9,7 +9,7 @@ driver = webdriver.Chrome(options=options)
 driver.get(url)
 time.sleep(2)
 def Click_Cookie_Button():
-    driver.find_element(By.CSS_SELECTOR, value = "#root > div.jss219.jss220 > button").click()
+    driver.find_element(By.CSS_SELECTOR, value = "#root > div.jss220.jss221 > button").click()
 def Night_Mode_On():
     driver.find_element(By.CSS_SELECTOR, value = "#root > header > div > div.jss17 > div.jss161 > span > span.MuiButtonBase-root-64.MuiIconButton-root-74.jss183.MuiSwitch-switchBase-176.jss165.MuiSwitch-colorSecondary-178 > span > input").click()
 def Choose_Offer_Type():
@@ -62,22 +62,40 @@ def Choose_Tech():
             print("Incorrect choice")
 
 def Get_Job_Offers():
-    z = driver.find_element(By.CSS_SELECTOR, value = "#root > div.css-1smbjja > div.css-kkhecm > div > div.css-110u7ph > div:nth-child(1) > div > div")
-    p = z.find_elements(By.CSS_SELECTOR, value = "#root > div.css-1smbjja > div.css-kkhecm > div > div.css-110u7ph > div:nth-child(1) > div > div > div:nth-child(1)")
-    print(p)
+    # get offer tab
+    job_offers = driver.find_element(By.CSS_SELECTOR, value = "#root > div.css-1smbjja > div.css-kkhecm > div > div.css-110u7ph > div:nth-child(1) > div")
+    full_height_job_offers = driver.find_element(By.CSS_SELECTOR, value = '#root > div.css-1smbjja > div.css-kkhecm > div > div.css-110u7ph > div:nth-child(1) > div > div').size['height']
+    height_job_offers = driver.find_element(By.CSS_SELECTOR, value = '#root > div.css-1smbjja > div.css-kkhecm > div > div.css-110u7ph > div:nth-child(1) > div').size['height']
+    print(full_height_job_offers)
+    print(height_job_offers)
+    z = height_job_offers
+    while full_height_job_offers > height_job_offers:
+        job_names = job_offers.find_elements(By.TAG_NAME, value="img")
+        link_to_job = job_offers.find_elements(By.TAG_NAME, value="a")
+        job_salary = job_offers.find_elements(By.XPATH, value="//*[contains(text(), 'PLN') or contains(text(), 'Undisclosed Salary')]")
+        for name in job_names:
+            print(name.get_attribute('alt'))
+        for link in link_to_job:
+            print(link.get_attribute('href'))
+        for salary in job_salary:
+            print(salary.text)
+        scroll_script = "arguments[0].scrollTop += 1076;"
+        driver.execute_script(scroll_script,job_offers)
+        height_job_offers += z
+        print(height_job_offers)
+        print(" ")
+        time.sleep(1)
 
 
-
-
-#Click_Cookie_Button()
-#time.sleep(1)
-
+Click_Cookie_Button()
+time.sleep(1)
 Night_Mode_On()
+time.sleep(1)
+Choose_Tech()
 time.sleep(1)
 Get_Job_Offers()
 #Choose_Offer_Type()
-#time.sleep(1)
-#Choose_Tech()
+
 
 
 # choose_offer_type()
