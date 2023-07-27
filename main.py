@@ -3,7 +3,7 @@ import time
 from selenium.webdriver.common.by import By
 url = 'https://justjoin.it'
 options = webdriver.ChromeOptions()
-# options.add_argument("--headless=new") HEADLESS MODE
+# options.add_argument("--headless=new") HEADLESS MODEgi9
 options.add_experimental_option("detach", True)  # DETACHT MODE
 driver = webdriver.Chrome(options=options)
 driver.get(url)
@@ -62,10 +62,9 @@ def Choose_Tech():
             print("Incorrect choice")
 
 def Get_Job_Offers():
-    z = driver.find_elements(By.CSS_SELECTOR, value = "#root > div.css-1smbjja > div.css-kkhecm > div > div.css-110u7ph > div:nth-child(1) > div")
-    for i in z:
-        i.find_element(By.TAG_NAME, value = 'img')
-        print(i.get_attribute("alt"))
+    z = driver.find_element(By.CSS_SELECTOR, value = "#root > div.css-1smbjja > div.css-kkhecm > div > div.css-110u7ph > div:nth-child(1) > div > div")
+    p = z.find_elements(By.CSS_SELECTOR, value = "#root > div.css-1smbjja > div.css-kkhecm > div > div.css-110u7ph > div:nth-child(1) > div > div > div:nth-child(1)")
+    print(p)
 
 
 
