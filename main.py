@@ -8,11 +8,11 @@ options.add_experimental_option("detach", True)  # DETACHT MODE
 driver = webdriver.Chrome(options=options)
 driver.get(url)
 time.sleep(2)
-def click_cookie_button():
+def Click_Cookie_Button():
     driver.find_element(By.CSS_SELECTOR, value = "#root > div.jss219.jss220 > button").click()
-def night_mode_on():
+def Night_Mode_On():
     driver.find_element(By.CSS_SELECTOR, value = "#root > header > div > div.jss17 > div.jss161 > span > span.MuiButtonBase-root-64.MuiIconButton-root-74.jss183.MuiSwitch-switchBase-176.jss165.MuiSwitch-colorSecondary-178 > span > input").click()
-def choose_offer_type():
+def Choose_Offer_Type():
     print("choose offer type (all offers[1] / Offers with salary[2]:")
     while True:
         try:
@@ -29,7 +29,7 @@ def choose_offer_type():
             print("Incorrect choice")
             print("Choose offer type: all offers[1] / Offers with salary[2]:")
 
-def choose_tech():
+def Choose_Tech():
     # click on tech selection button,then get list of technologies
     driver.find_element(By.CSS_SELECTOR, value = "#root > div.css-1ho6o7a > div > button:nth-child(3)").click()
     tech_tab = driver.find_element(By.CSS_SELECTOR, value = "body > div.MuiDialog-root > div.MuiDialog-container.MuiDialog-scrollPaper > div > div.MuiDialogContent-root.MuiDialogContent-dividers")
@@ -61,15 +61,24 @@ def choose_tech():
         except ValueError:
             print("Incorrect choice")
 
+def Get_Job_Offers():
+    z = driver.find_elements(By.CSS_SELECTOR, value = "#root > div.css-1smbjja > div.css-kkhecm > div > div.css-110u7ph > div:nth-child(1) > div")
+    for i in z:
+        i.find_element(By.TAG_NAME, value = 'img')
+        print(i.get_attribute("alt"))
 
 
-#click_cookie_button()
+
+
+#Click_Cookie_Button()
 #time.sleep(1)
-night_mode_on()
+
+Night_Mode_On()
 time.sleep(1)
-#choose_offer_type()
+Get_Job_Offers()
+#Choose_Offer_Type()
 #time.sleep(1)
-choose_tech()
+#Choose_Tech()
 
 
 # choose_offer_type()
