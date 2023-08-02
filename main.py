@@ -130,6 +130,77 @@ def Filter_Settings():
         except ValueError:
             print("Incorrect choice")
 
+def Choose_Location():
+    # CSS SELECTORS
+    location_button_selector = "#root > div.css-1ho6o7a > div > button:nth-child(2)"
+    poland_locations_selector = "body > div.MuiDialog-root > div.MuiDialog-container.MuiDialog-scrollPaper > div > div.MuiDialogContent-root.MuiDialogContent-dividers > div > div:nth-child(2) > div > div > div > div"
+    other_locations_poland_button_selector = "body > div.MuiDialog-root > div.MuiDialog-container.MuiDialog-scrollPaper > div > div.MuiDialogContent-root.MuiDialogContent-dividers > div > div:nth-child(4) > button"
+    other_locations_poland_selector = "body > div.MuiDialog-root > div.MuiDialog-container.MuiDialog-scrollPaper > div > div.MuiDialogContent-root.MuiDialogContent-dividers > div > div:nth-child(4) > div > div > div > div"
+    top_world_locations_selector = "body > div.MuiDialog-root > div.MuiDialog-container.MuiDialog-scrollPaper > div > div.MuiDialogContent-root.MuiDialogContent-dividers > div > div:nth-child(3) > div > div > div > div"
+
+    # CLICK BUTTONS
+    driver.find_element(By.CSS_SELECTOR, value = location_button_selector).click()
+    time.sleep(0.5)
+    driver.find_element(By.CSS_SELECTOR, value = other_locations_poland_button_selector).click()
+
+    top_poland_locations = driver.find_element(By.CSS_SELECTOR, value=poland_locations_selector)
+    other_locations_poland = driver.find_element(By.CSS_SELECTOR, value = other_locations_poland_selector)
+    top_world_locations = driver.find_element(By.CSS_SELECTOR, value = top_world_locations_selector)
+
+    def get_top_poland_names():
+        top_poland_locations_names = top_poland_locations.find_elements(By.TAG_NAME, value='a')
+        names = []
+        for index, element in enumerate(top_poland_locations_names[:], start=1):
+            names.append(f"{index}.{element.text}")
+
+        for n in names:
+            print(n)
+
+        choose = int(input("Choose city: "))
+        top_poland_locations_names[choose-1].click()
+        print("Selected city: " + names[choose-1])
+
+    def get_other_locations_poland_names():
+        other_locations_poland_names = other_locations_poland.find_elements(By.TAG_NAME, value='a')
+        names = []
+        for index, element in enumerate(other_locations_poland_names[:], start=1):
+            names.append(f"{index}.{element.text}")
+
+        for n in names:
+            print(n)
+
+        choose = int(input("Choose city: "))
+        other_locations_poland_names[choose - 1].click()
+        print("Selected city: " + names[choose - 1])
+
+    def get_top_world_locations_names():
+        top_world_locations_names = top_world_locations.find_elements(By.TAG_NAME, value='a')
+        names = []
+        for index, element in enumerate(top_world_locations_names[:], start=1):
+            names.append(f"{index}.{element.text}")
+
+        for n in names:
+            print(n)
+
+        choose = int(input("Choose city: "))
+        top_world_locations_names[choose - 1].click()
+        print("Selected city: " + names[choose - 1])
+
+    # while True:
+    #     try:
+    #         choose = int(input("Choose location: "))
+    #         if choose == 1:
+    #             get_top_poland_names()
+    #             choose_city = int(input("Choose city: "))
+    #
+    #         if choose == 2:
+    #             get_other_locations_poland_names()
+    #         if choose == 3:
+    #             get_top_world_locations_names()
+    #     except ValueError:
+    #         print("Incorrect choice")
+    get_top_poland_names()
+
 def Get_Job_Offers():
     full_height_job_offers = driver.find_element(By.CSS_SELECTOR, value = '#root > div.css-1smbjja > div.css-kkhecm > div > div.css-110u7ph > div:nth-child(1) > div > div').size['height']
     height_job_offers = driver.find_element(By.CSS_SELECTOR, value = '#root > div.css-1smbjja > div.css-kkhecm > div > div.css-110u7ph > div:nth-child(1) > div').size['height']
@@ -167,7 +238,8 @@ Click_Cookie_Button()
 time.sleep(1)
 Night_Mode_On()
 time.sleep(1)
-Filter_Settings()
+Choose_Location()
+#Filter_Settings()
 
 #Choose_Offer_Type()
 
