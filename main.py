@@ -9,19 +9,23 @@ options = webdriver.ChromeOptions()
 options.add_experimental_option("detach", True)  # DETACHT MODE
 driver = webdriver.Chrome(options=options)
 driver.get(url)
-time.sleep(2)
+time.sleep(1)
 
 def Click_Cookie_Button():
     now = datetime.now()
     t = now.strftime("%H")
-    if 22 <= int(t) <= 6:
+    if int(t) >= 22 or int(t) <= 6:
         driver.find_element(By.CSS_SELECTOR, value = "#root > div.jss220.jss221 > button").click()
     else:
         driver.find_element(By.CSS_SELECTOR, value="#root > div.jss219.jss220 > button").click()
 
 def Night_Mode_On():
-
-    driver.find_element(By.CSS_SELECTOR, value = "#root > header > div > div.jss17 > div.jss161 > span > span.MuiButtonBase-root-64.MuiIconButton-root-74.jss182.MuiSwitch-switchBase-175.jss165.MuiSwitch-colorSecondary-177 > span > input").click()
+    now = datetime.now()
+    t = now.strftime("%H")
+    if int(t) >= 22 or int(t) <= 6:
+        driver.find_element(By.CSS_SELECTOR, value="#root > header > div > div.jss17 > div.jss161 > span > span.MuiButtonBase-root-64.MuiIconButton-root-74.jss183.MuiSwitch-switchBase-176.jss165.MuiSwitch-colorSecondary-178 > span > input").click()
+    else:
+        driver.find_element(By.CSS_SELECTOR, value="#root > header > div > div.jss17 > div.jss161 > span > span.MuiButtonBase-root-64.MuiIconButton-root-74.jss182.MuiSwitch-switchBase-175.jss165.MuiSwitch-colorSecondary-177 > span > input").click()
 
 def Choose_Offer_Type():
     while True:
