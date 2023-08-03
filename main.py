@@ -1,4 +1,5 @@
 from selenium import webdriver
+from datetime import datetime
 import time
 from selenium.webdriver.common.by import By
 from itertools import chain
@@ -11,20 +12,27 @@ driver.get(url)
 time.sleep(2)
 
 def Click_Cookie_Button():
-    driver.find_element(By.CSS_SELECTOR, value = "#root > div.jss220.jss221 > button").click()
+    now = datetime.now()
+    t = now.strftime("%H")
+    if 22 <= int(t) <= 6:
+        driver.find_element(By.CSS_SELECTOR, value = "#root > div.jss220.jss221 > button").click()
+    else:
+        driver.find_element(By.CSS_SELECTOR, value="#root > div.jss219.jss220 > button").click()
 
 def Night_Mode_On():
-    driver.find_element(By.CSS_SELECTOR, value = "#root > header > div > div.jss17 > div.jss161 > span > span.MuiButtonBase-root-64.MuiIconButton-root-74.jss183.MuiSwitch-switchBase-176.jss165.MuiSwitch-colorSecondary-178 > span > input").click()
+
+    driver.find_element(By.CSS_SELECTOR, value = "#root > header > div > div.jss17 > div.jss161 > span > span.MuiButtonBase-root-64.MuiIconButton-root-74.jss182.MuiSwitch-switchBase-175.jss165.MuiSwitch-colorSecondary-177 > span > input").click()
 
 def Choose_Offer_Type():
-    print("choose offer type (all offers[1] / Offers with salary[2]:")
     while True:
         try:
-            choose = int(input())
+            choose = int(input("Choose offer type (all offers[1] / Offers with salary[2]:"))
             if choose in (1,2):
                 if choose == 1:
+                    print("Selected offer type: 1.All offers\n")
                     return driver.find_element(By.CSS_SELECTOR, value="#root > div.css-1smbjja > div.css-kkhecm > div > div.css-p1iqw4 > div.css-1x7tcfa > a.css-67yi4f").click()
                 if choose == 2:
+                    print("Selected offer type: 2.Offers with salary\n")
                     return driver.find_element(By.CSS_SELECTOR, value="#root > div.css-1smbjja > div.css-kkhecm > div > div.css-p1iqw4 > div.css-1x7tcfa > a.css-1pow96e").click()
             else:
                 print("Incorrect choice")
@@ -66,6 +74,7 @@ def Choose_Tech():
             print("Incorrect choice")
 
 def Filter_Settings():
+    # extracting names from list without blank space between them, using list comprehension
     def Extract_Names(elements):
         names = [element.text for element in elements if element.text.strip() != '']
         return [f"{index + 1}.{name}" for index, name in enumerate(names)]
@@ -146,6 +155,7 @@ def Choose_Location():
     top_poland_locations = driver.find_element(By.CSS_SELECTOR, value=poland_locations_selector)
     other_locations_poland = driver.find_element(By.CSS_SELECTOR, value = other_locations_poland_selector)
     top_world_locations = driver.find_element(By.CSS_SELECTOR, value = top_world_locations_selector)
+    locations_types = ["1.Top Poland locations", "2.Other locations Poland", "3.Top world locations"]
 
     def get_top_poland_names():
         top_poland_locations_names = top_poland_locations.find_elements(By.TAG_NAME, value='a')
@@ -158,7 +168,7 @@ def Choose_Location():
 
         choose = int(input("Choose city: "))
         top_poland_locations_names[choose-1].click()
-        print("Selected city: " + names[choose-1])
+        print("\nSelected city: " + names[choose-1])
 
     def get_other_locations_poland_names():
         other_locations_poland_names = other_locations_poland.find_elements(By.TAG_NAME, value='a')
@@ -171,7 +181,7 @@ def Choose_Location():
 
         choose = int(input("Choose city: "))
         other_locations_poland_names[choose - 1].click()
-        print("Selected city: " + names[choose - 1])
+        print("\nSelected city: " + names[choose - 1])
 
     def get_top_world_locations_names():
         top_world_locations_names = top_world_locations.find_elements(By.TAG_NAME, value='a')
@@ -182,24 +192,28 @@ def Choose_Location():
         for n in names:
             print(n)
 
-        choose = int(input("Choose city: "))
+        choose = int(input("\nChoose city: "))
         top_world_locations_names[choose - 1].click()
-        print("Selected city: " + names[choose - 1])
+        print("\nSelected city: " + names[choose - 1])
 
-    # while True:
-    #     try:
-    #         choose = int(input("Choose location: "))
-    #         if choose == 1:
-    #             get_top_poland_names()
-    #             choose_city = int(input("Choose city: "))
-    #
-    #         if choose == 2:
-    #             get_other_locations_poland_names()
-    #         if choose == 3:
-    #             get_top_world_locations_names()
-    #     except ValueError:
-    #         print("Incorrect choice")
-    get_top_poland_names()
+    while True:
+        try:
+            for i in locations_types:
+                print(i)
+            choice = int(input("Choose location: "))
+
+            if choice in (1,2,3):
+                if choice == 1:
+                    return get_top_poland_names()
+                if choice == 2:
+                    return get_other_locations_poland_names()
+                if choice == 3:
+                    return get_top_world_locations_names()
+            else:
+                print("\nIncorrect choice\n")
+
+        except ValueError:
+            print("\nIncorrect choice\n")
 
 def Get_Job_Offers():
     full_height_job_offers = driver.find_element(By.CSS_SELECTOR, value = '#root > div.css-1smbjja > div.css-kkhecm > div > div.css-110u7ph > div:nth-child(1) > div > div').size['height']
@@ -232,18 +246,22 @@ def Get_Job_Offers():
 
     salaries_filtered = [x for x in salaries if x not in '']
     combined_list = list(chain(*zip(names, salaries_filtered, links)))
-    print(list(combined_list))
+
+    if len(combined_list) == 0:
+        print("Nie znaleziono żadnych ofert!")
+    else:
+        print(list(combined_list))
 
 Click_Cookie_Button()
 time.sleep(1)
 Night_Mode_On()
 time.sleep(1)
+Choose_Offer_Type()
+time.sleep(1)
+Choose_Tech()
+time.sleep(1)
 Choose_Location()
-#Filter_Settings()
-
-#Choose_Offer_Type()
-
-
-# with open("source.html", "w", encoding='utf-8') as f:
-#     f.write(driver.page_source)
-#     f.close()
+time.sleep(1)
+Filter_Settings()
+time.sleep(1)
+Get_Job_Offers()
