@@ -220,49 +220,51 @@ def Choose_Location():
             print("\nIncorrect choice\n")
 
 def Get_Job_Offers():
-    #full_height_job_offers = driver.find_element(By.CSS_SELECTOR, value = '#root > div.css-1smbjja > div.css-kkhecm > div > div.css-110u7ph > div:nth-child(1) > div > div').size['height']
+    full_height_job_offers = driver.find_element(By.CSS_SELECTOR, value = '#root > div.css-1smbjja > div.css-kkhecm > div > div.css-110u7ph > div:nth-child(1) > div > div').size['height']
     job_offers = driver.find_element(By.XPATH, value="//div[@class='css-rinife']")
-    #job_names = job_offers.find_elements(By.TAG_NAME, value="img")
-    #link_to_job = job_offers.find_elements(By.TAG_NAME, value="a")
-    #job_salary = job_offers.find_elements(By.XPATH, value="//div[contains(text(), 'PLN') or contains(text(), 'Undisclosed Salary')]")
 
     names = []
     links = []
-    salaries = []
 
     def scroll():
-        scroll_script = "arguments[0].scrollTop += 1000;"
+        scroll_script = "arguments[0].scrollTop += 612;"
         driver.execute_script(scroll_script, job_offers)
         time.sleep(1)
 
     k = 'div[style="position: absolute; left: 0px; top: 0px; height: 68px; width: 100%;"]'
 
-    def increase_top(top):
-        for f in range(12):
-            updated_k = k.replace(f'top: 0px', f'top: {top+(f*68)}px')
-            z = job_offers.find_element(By.CSS_SELECTOR, value=updated_k)
-            job_names = z.find_elements(By.TAG_NAME, value = "img")
-            link_to_job = z.find_elements(By.TAG_NAME, value="a")
-            job_salary = z.find_elements(By.XPATH, value="//div[contains(text(), 'PLN') or contains(text(), 'Undisclosed Salary')]")
+    def increase_top(top, full_height_job_offers, k, job_offers, names, links):
+        z = top
 
-            for name in job_names:
-                names.append(name.get_attribute('alt'))
+        while z <= full_height_job_offers - 204:
+            print(z)
 
-            for link in link_to_job:
-                links.append(link.get_attribute('href'))
+            if z % 612 == 0 and z != 0:
+                scroll()
 
-            for salary in job_salary:
-                salaries.append(salary.text)
+            updated_k = k.replace(f'top: 0px', f'top: {z}px')
+            z_element = job_offers.find_element(By.CSS_SELECTOR, value=updated_k)
+            job_names = z_element.find_element(By.TAG_NAME, value="img")
+            link_to_job = z_element.find_element(By.TAG_NAME, value="a")
+            job_salary = z_element.find_elements(By.XPATH,
+                                                 value="//div[contains(text(), 'PLN') or contains(text(), 'Undisclosed Salary')]")
 
+            names.append(job_names.get_attribute('alt'))
+            links.append(link_to_job.get_attribute('href'))
 
-    for i in range(2):
-        increase_top(816*i)
-        scroll()
+            z += 68
 
+    print(full_height_job_offers)
+    increase_top(0, full_height_job_offers, k, job_offers, names, links)
 
-    salaries_filtered = [x for x in salaries if x not in '']
-    combined_list = list(chain(*zip(names, salaries_filtered, links)))
+    for i in names:
+        print(i)
+    for k in links:
+        print(k)
 
+    combined_list = list(chain(*zip(names, links)))
+    print(len(links))
+    print(len(names))
     if len(combined_list) == 0:
         print("Nie znaleziono żadnych ofert!")
     else:
@@ -275,8 +277,8 @@ time.sleep(1)
 Night_Mode_On()
 # time.sleep(1)
 # Choose_Offer_Type()
-# time.sleep(1)
-# Choose_Tech()
+time.sleep(1)
+Choose_Tech()
 # time.sleep(1)
 # Choose_Location()
 # time.sleep(1)
