@@ -6,8 +6,9 @@ from reportlab.platypus import SimpleDocTemplate, Paragraph, Spacer
 from reportlab.lib.styles import getSampleStyleSheet, ParagraphStyle
 from reportlab.lib import colors
 from datetime import datetime
+from tqdm import tqdm
 import time
-
+from time import sleep
 url = 'https://justjoin.it'
 options = webdriver.ChromeOptions()
 # options.add_argument("--headless=new") HEADLESS MODE
@@ -248,9 +249,11 @@ def Get_Job_Offers():
 
     def increase_top(top, jobs_div_height, job_selector, job_offers_div, job_list):
         z = top
+        total_iterations = (jobs_div_height - 204 - top) // 68
+        pbar = tqdm(total=total_iterations, colour = "red")
+        pbar.set_description("Scraping...", refresh=True)
         while z <= jobs_div_height - 204:  # -204 because the last 204px doesnt contain job offers
             # print(z) to check top value
-
             if z % 612 == 0 and z != 0:  # 612 because site is scrolled with 612px
                 scroll()
 
@@ -262,8 +265,11 @@ def Get_Job_Offers():
                 job_list.append(job_names.get_attribute('alt'))
                 job_list.append(link_to_job.get_attribute('href'))
                 z += 68
+                pbar.update(1)
             except NoSuchElementException:
                 break
+
+        pbar.close()
 
     # print(full_height_job_offers) to check height
     increase_top(0, full_height_job_offers, job_xpath_selector, job_offers, jobs)
@@ -286,7 +292,7 @@ def Get_Job_Offers():
                     Save_Jobs_To_Pdf(jobs,output_file)
                 if choose == 2:
                     print("Back to menu...\n")
-                    time.sleep(2)
+                    sleep(3)
                     return Menu()
         except ValueError:
             print("Incorrect choice")
@@ -303,20 +309,20 @@ def Save_Jobs_To_Pdf(jobs_list, output):
     )
 
     styles.add(link_style)
-    story = []
+    file = []
 
     for item in jobs_list:
         if item == ' ':
             # Dodaj spację jako pusty akapit
-            story.append(Spacer(1, 12))
+            file.append(Spacer(1, 12))
         else:
             # Sprawdź, czy to jest link (np. zaczyna się od "http")
             if item.startswith("http"):
-                story.append(Paragraph(item, styles['LinkStyle']))
+                file.append(Paragraph(item, styles['LinkStyle']))
             else:
-                story.append(Paragraph(item, styles['Normal']))
+                file.append(Paragraph(item, styles['Normal']))
 
-    doc.build(story)
+    doc.build(file)
 
 def Menu():
     def Menu_filters():
@@ -348,7 +354,7 @@ def Menu():
     choose2 = int(input("Choose: (type 1-3)"))
     while True:
         try:
-            if choose2 in (1 ,2, 3):
+            if choose2 in (1, 2, 3):
                 if choose2 == 1:
                     return Menu_filters()
                 if choose2 == 2:
@@ -359,6 +365,7 @@ def Menu():
         except ValueError:
             print("Incorrect choice")
             choose2 = int(input("Choose: (type 1-3)"))
+
 
 output_file = "jobs.pdf"
 Click_Cookie_Button()
