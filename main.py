@@ -12,8 +12,8 @@ from time import sleep
 
 url = 'https://justjoin.it'
 options = webdriver.ChromeOptions()
-#options.add_argument("--headless=new")  # HEADLESS MODE
-options.add_experimental_option("detach", True)  # DETACHT MODE
+options.add_argument("--headless=new")  # HEADLESS MODE
+#options.add_experimental_option("detach", True)  # DETACHT MODE
 driver = webdriver.Chrome(options=options)
 driver.get(url)
 time.sleep(1)
