@@ -9,9 +9,10 @@ from datetime import datetime
 from tqdm import tqdm
 import time
 from time import sleep
+
 url = 'https://justjoin.it'
 options = webdriver.ChromeOptions()
-# options.add_argument("--headless=new") HEADLESS MODE
+#options.add_argument("--headless=new")  # HEADLESS MODE
 options.add_experimental_option("detach", True)  # DETACHT MODE
 driver = webdriver.Chrome(options=options)
 driver.get(url)
@@ -240,18 +241,21 @@ def Get_Job_Offers():
     job_offers = driver.find_element(By.XPATH, value="//div[@class='css-rinife']")
     jobs = []  # list for scraped jobs
 
-    def scroll():
+    def scroll():  # function responsible for scrolling site every 612px
         scroll_script = "arguments[0].scrollTop += 612;"
         driver.execute_script(scroll_script, job_offers)
         time.sleep(1)
 
     job_xpath_selector = 'div[style="position: absolute; left: 0px; top: 0px; height: 68px; width: 100%;"]'
 
+    # increase top function is responsible for increasing top attribute in xpath selector of single job offer,
+    # every increased top is next job offer
     def increase_top(top, jobs_div_height, job_selector, job_offers_div, job_list):
         z = top
         total_iterations = (jobs_div_height - 204 - top) // 68
         pbar = tqdm(total=total_iterations, colour = "red")
         pbar.set_description("Scraping...", refresh=True)
+
         while z <= jobs_div_height - 204:  # -204 because the last 204px doesnt contain job offers
             # print(z) to check top value
             if z % 612 == 0 and z != 0:  # 612 because site is scrolled with 612px
@@ -262,27 +266,28 @@ def Get_Job_Offers():
                 z_element = job_offers_div.find_element(By.CSS_SELECTOR, value=updated_job_selector)
                 job_names = z_element.find_element(By.TAG_NAME, value="img")
                 link_to_job = z_element.find_element(By.TAG_NAME, value="a")
+
                 job_list.append(job_names.get_attribute('alt'))
                 job_list.append(link_to_job.get_attribute('href'))
-                z += 68
                 pbar.update(1)
+
+                z += 68
             except NoSuchElementException:
                 break
-
         pbar.close()
 
     # print(full_height_job_offers) to check height
     increase_top(0, full_height_job_offers, job_xpath_selector, job_offers, jobs)
+
     if len(jobs) == 0:
         return print("Nie znaleziono żadnych ofert!")
 
-    for i in range(len(jobs) - 1, 0, -1):
-        if i % 2 == 0:
+    for i in range(len(jobs) - 1, 0, -1):   # adding space between offers for better visibility
+        if i % 2 == 0:  # % 2 because 1 el is name, 2 el is link
             jobs.insert(i, ' ')
 
     for j in jobs:
         print(j)
-
     print("\nDo you want to save results in pdf file?")
     choose = int(input("1.Yes / 2.No"))
     while True:
@@ -310,19 +315,22 @@ def Save_Jobs_To_Pdf(jobs_list, output):
 
     styles.add(link_style)
     file = []
-
     for item in jobs_list:
         if item == ' ':
-            # Dodaj spację jako pusty akapit
+            # add empty paragraph
             file.append(Spacer(1, 12))
         else:
-            # Sprawdź, czy to jest link (np. zaczyna się od "http")
+            # check if link
             if item.startswith("http"):
                 file.append(Paragraph(item, styles['LinkStyle']))
             else:
                 file.append(Paragraph(item, styles['Normal']))
 
     doc.build(file)
+    print("Saved!")
+    print("Returning to the menu...")
+    time.sleep(3)
+    return Menu()
 
 def Menu():
     def Menu_filters():
@@ -358,8 +366,7 @@ def Menu():
                 if choose2 == 1:
                     return Menu_filters()
                 if choose2 == 2:
-                    Get_Job_Offers()
-                    print("Back to menu")
+                    return Get_Job_Offers()
                 if choose2 == 3:
                     return
         except ValueError:
@@ -372,6 +379,4 @@ Click_Cookie_Button()
 time.sleep(0.5)
 Night_Mode_On()
 print("#########################\nWELCOME TO IT JOB SCRAPER\n#########################\n")
-# Menu()
-Choose_Tech()
-Get_Job_Offers()
+Menu()
