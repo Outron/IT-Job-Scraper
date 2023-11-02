@@ -1,5 +1,5 @@
 # IT-Job-Scraper
-This console application scrape IT job offers from justjoin.it using Selenium. 
+This console application scrape IT job offers from justjoin.it using Python and Selenium. 
 ## How to run
 Create new folder, open terminal in it and type: `git clone https://github.com/Outron/IT-Job-Scraper`     
 
