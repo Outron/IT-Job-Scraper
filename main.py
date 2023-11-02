@@ -10,19 +10,23 @@ from tqdm import tqdm
 import time
 from time import sleep
 
+# URL: https://justjoin.it/
+# WebDriver: Chrome
 url = 'https://justjoin.it'
 options = webdriver.ChromeOptions()
-options.add_argument("--headless=new")  # HEADLESS MODE
-#options.add_experimental_option("detach", True)  # DETACHT MODE
+
+#options.add_argument("--headless=new")  # HEADLESS MODE
+options.add_experimental_option("detach", True)  # DETACHT MODE
 driver = webdriver.Chrome(options=options)
+driver.set_window_size(800,1000)
 driver.get(url)
-time.sleep(1)
+time.sleep(3)
 
 def Click_Cookie_Button():
     now = datetime.now()
     t = now.strftime("%H")
     if int(t) >= 22 or int(t) <= 6:
-        driver.find_element(By.CSS_SELECTOR, value="#root > div.jss220.jss221 > button").click()
+        driver.find_element(By.XPATH("///*[@id='__next']/div[3]/button"))
     else:
         driver.find_element(By.CSS_SELECTOR, value="#root > div.jss219.jss220 > button").click()
 
@@ -43,14 +47,14 @@ def Choose_Offer_Type():
             if choose in (1, 2):
                 if choose == 1:
                     print("Selected offer type: 1.All offers\n")
-                    driver.find_element(By.CSS_SELECTOR,
-                                        value="#root > div.css-1smbjja > div.css-kkhecm > div > div.css-p1iqw4 > div.css-1x7tcfa > a.css-67yi4f").click()
+                    driver.find_element(By.XPATH,
+                                        value="/html/body/div[1]/div[2]/div[2]/div/div[1]/div[2]/div/div/div[1]/div[1]/div/div/button[2]").click()
                     time.sleep(1)
                     return
                 if choose == 2:
                     print("Selected offer type: 2.Offers with salary\n")
-                    driver.find_element(By.CSS_SELECTOR,
-                                        value="#root > div.css-1smbjja > div.css-kkhecm > div > div.css-p1iqw4 > div.css-1x7tcfa > a.css-1pow96e").click()
+                    driver.find_element(By.XPATH,
+                                        value="/html/body/div[1]/div[2]/div[2]/div/div[1]/div[2]/div/div/div[1]/div[1]/div/div/button[1]").click()
                     time.sleep(1)
                     return
             else:
@@ -62,14 +66,13 @@ def Choose_Offer_Type():
 
 def Choose_Tech():
     # click on tech selection button,then get list of technologies
-    driver.find_element(By.CSS_SELECTOR, value="#root > div.css-1ho6o7a > div > button:nth-child(3)").click()
-    tech_tab = driver.find_element(By.CSS_SELECTOR,
-                                   value="body > div.MuiDialog-root > div.MuiDialog-container.MuiDialog-scrollPaper > div > div.MuiDialogContent-root.MuiDialogContent-dividers")
-    tech_list = tech_tab.find_elements(By.XPATH, value='//a[@aria-disabled="false"]')
+    driver.find_element(By.XPATH, value="//button[normalize-space()='Tech']").click()
+    tech_tab = driver.find_element(By.XPATH, value="//div[@class='css-1ff3op5']")
+    tech_list = tech_tab.find_elements(By.XPATH, value="//div[@class='css-1k38fl6']")
 
     # Creating a list with names of technologies
     tech_name = []
-    for index, element in enumerate(tech_list[3:], start=1):
+    for index, element in enumerate(tech_list[1:], start=1):
         tech_name.append(f"{index}.{element.text}")
 
     # Display names of technologies in colmuns
@@ -89,7 +92,7 @@ def Choose_Tech():
         try:
             choose = int(input("Choose technology: (type 1-25) "))
             name_of_technology = tech_name[abs(choose - 1)]
-            tech_list[abs(choose + 2)].click()
+            tech_list[abs(choose)].click()
             return print("Selected technology: " + name_of_technology)
         except ValueError:
             print("Incorrect choice")
@@ -101,28 +104,28 @@ def Filter_Settings():
         return [f"{index + 1}.{name}" for index, name in enumerate(names)]
 
     # Needed CSS selectors
-    more_filters_button_selector = "#root > div.css-1ho6o7a > div > button.MuiButtonBase-root.MuiButton-root.MuiButton-outlined.css-74bv5i.MuiButton-outlinedSizeSmall.MuiButton-sizeSmall"
-    employment_selector = "body > div.MuiDialog-root > div.MuiDialog-container.MuiDialog-scrollPaper > div > div.MuiDialogContent-root.MuiDialogContent-dividers > div:nth-child(5) > div"
-    seniority_selector = "body > div.MuiDialog-root > div.MuiDialog-container.MuiDialog-scrollPaper > div > div.MuiDialogContent-root.MuiDialogContent-dividers > div:nth-child(8) > div"
-    apply_settings_button = "body > div.MuiDialog-root > div.MuiDialog-container.MuiDialog-scrollPaper > div > div.MuiDialogActions-root.css-1h3quci.MuiDialogActions-spacing > a.MuiButtonBase-root.MuiButton-root.MuiButton-outlined.css-1fivffo"
+    more_filters_button_selector = "//button[normalize-space()='More filters']"
+    employment_selector = "/html[1]/body[1]/div[5]/div[3]/div[1]/div[2]/form[1]/div[4]/fieldset[1]/div[1]"
+    seniority_selector = "/html[1]/body[1]/div[5]/div[3]/div[1]/div[2]/form[1]/div[3]/fieldset[1]/div[1]"
+    apply_settings_button = "button[type='submit']"
 
     # More filters button click
-    driver.find_element(By.CSS_SELECTOR, value=more_filters_button_selector).click()
-
+    driver.find_element(By.XPATH, value=more_filters_button_selector).click()
+    time.sleep(1)
     # Take employment buttons and names
-    employment_type = driver.find_element(By.CSS_SELECTOR, value=employment_selector)
-    employment_name = employment_type.find_elements(By.TAG_NAME, value="span")
-    emp_button = employment_type.find_elements(By.TAG_NAME, value="button")
+    employment_type = driver.find_element(By.XPATH, value=employment_selector)
+    employment_name = employment_type.find_elements(By.TAG_NAME, value="label")
+    emp_button = employment_type.find_elements(By.TAG_NAME, value="input")
     name_type_filtered = Extract_Names(employment_name)
 
     # Take seniority buttons and names
-    seniority_type = driver.find_element(By.CSS_SELECTOR, value=seniority_selector)
-    seniority_name = seniority_type.find_elements(By.TAG_NAME, value="span")
-    sen_button = seniority_type.find_elements(By.TAG_NAME, value="button")
+    seniority_type = driver.find_element(By.XPATH, value=seniority_selector)
+    seniority_name = seniority_type.find_elements(By.TAG_NAME, value="label")
+    sen_button = seniority_type.find_elements(By.TAG_NAME, value="input")
     name_type_filtered.extend(Extract_Names(seniority_name))
 
     # Print the filtered and enumerated names of employment
-    for employment in name_type_filtered[:4]:
+    for employment in name_type_filtered[:5]:
         print(employment)
 
     # Make employment type choose
@@ -130,7 +133,7 @@ def Filter_Settings():
         print("Choose employment type: ")
         try:
             choose_emp = int(input())
-            if choose_emp in range(1, 5):
+            if choose_emp in range(1, 6):
                 emp_button[choose_emp - 1].click()
                 print("Selected type of employment: " + name_type_filtered[choose_emp - 1] + "\n")
                 break
@@ -141,7 +144,7 @@ def Filter_Settings():
             print("Incorrect choice")
 
     # Print the filtered and enumerated names of seniority
-    for seniority in name_type_filtered[4:]:
+    for seniority in name_type_filtered[5:]:
         print(seniority)
 
     # Make seniority type choose
@@ -149,9 +152,9 @@ def Filter_Settings():
         print("Choose seniority type: ")
         try:
             choose_sen = int(input())
-            if choose_sen in range(1, 5):
+            if choose_sen in range(1, 6):
                 sen_button[choose_sen - 1].click()
-                print("Selected type of seniority: " + name_type_filtered[choose_sen + 3] + "\n")
+                print("Selected type of seniority: " + name_type_filtered[choose_sen + 4] + "\n")
                 driver.find_element(By.CSS_SELECTOR, value=apply_settings_button).click()
                 break
             else:
@@ -162,59 +165,41 @@ def Filter_Settings():
 
 def Choose_Location():
     # CSS SELECTORS
-    location_button_selector = "#root > div.css-1ho6o7a > div > button:nth-child(2)"
-    poland_locations_selector = "body > div.MuiDialog-root > div.MuiDialog-container.MuiDialog-scrollPaper > div > div.MuiDialogContent-root.MuiDialogContent-dividers > div > div:nth-child(2) > div > div > div > div"
-    other_locations_poland_button_selector = "body > div.MuiDialog-root > div.MuiDialog-container.MuiDialog-scrollPaper > div > div.MuiDialogContent-root.MuiDialogContent-dividers > div > div:nth-child(4) > button"
-    other_locations_poland_selector = "body > div.MuiDialog-root > div.MuiDialog-container.MuiDialog-scrollPaper > div > div.MuiDialogContent-root.MuiDialogContent-dividers > div > div:nth-child(4) > div > div > div > div"
-    top_world_locations_selector = "body > div.MuiDialog-root > div.MuiDialog-container.MuiDialog-scrollPaper > div > div.MuiDialogContent-root.MuiDialogContent-dividers > div > div:nth-child(3) > div > div > div > div"
+    location_button_selector = "/html[1]/body[1]/div[1]/div[2]/div[2]/div[1]/div[1]/div[1]/button[1]"
+    poland_locations_selector = "/html[1]/body[1]/div[5]/div[3]/div[1]/div[1]/form[1]/div[1]/div[3]/div[1]"
+    other_locations_poland_selector = "/html[1]/body[1]/div[5]/div[3]/div[1]/div[1]/form[1]/div[1]/div[5]/div[1]"
+    top_world_locations_selector = "/html[1]/body[1]/div[5]/div[3]/div[1]/div[1]/form[1]/div[1]/div[4]/div[1]"
+    show_offers_button = "//button[@type='submit']"
 
     # CLICK BUTTONS
-    driver.find_element(By.CSS_SELECTOR, value=location_button_selector).click()
+    driver.find_element(By.XPATH, value=location_button_selector).click()
     time.sleep(0.5)
-    driver.find_element(By.CSS_SELECTOR, value=other_locations_poland_button_selector).click()
 
-    top_poland_locations = driver.find_element(By.CSS_SELECTOR, value=poland_locations_selector)
-    other_locations_poland = driver.find_element(By.CSS_SELECTOR, value=other_locations_poland_selector)
-    top_world_locations = driver.find_element(By.CSS_SELECTOR, value=top_world_locations_selector)
+    top_poland_locations = driver.find_element(By.XPATH, value=poland_locations_selector)
+    other_locations_poland = driver.find_element(By.XPATH, value=other_locations_poland_selector)
+    top_world_locations = driver.find_element(By.XPATH, value=top_world_locations_selector)
     locations_types = ["1.Top Poland locations", "2.Other locations Poland", "3.Top world locations"]
 
-    def get_top_poland_names():
-        top_poland_locations_names = top_poland_locations.find_elements(By.TAG_NAME, value='a')
+    def get_location_names(value):
+        xpath = ''
+        if value == 1:
+            xpath = top_poland_locations
+        if value == 2:
+            xpath = other_locations_poland
+        if value == 3:
+            xpath = top_world_locations
+
+        location_names = xpath.find_elements(By.TAG_NAME, value='button')
         names = []
-        for index, element in enumerate(top_poland_locations_names[:], start=1):
+        for index, element in enumerate(location_names[:], start=1):
             names.append(f"{index}.{element.text}")
 
         for n in names:
             print(n)
 
         choose = int(input("Choose city: "))
-        top_poland_locations_names[choose - 1].click()
-        print("\nSelected city: " + names[choose - 1])
-
-    def get_other_locations_poland_names():
-        other_locations_poland_names = other_locations_poland.find_elements(By.TAG_NAME, value='a')
-        names = []
-        for index, element in enumerate(other_locations_poland_names[:], start=1):
-            names.append(f"{index}.{element.text}")
-
-        for n in names:
-            print(n)
-
-        choose = int(input("Choose city: "))
-        other_locations_poland_names[choose - 1].click()
-        print("\nSelected city: " + names[choose - 1])
-
-    def get_top_world_locations_names():
-        top_world_locations_names = top_world_locations.find_elements(By.TAG_NAME, value='a')
-        names = []
-        for index, element in enumerate(top_world_locations_names[:], start=1):
-            names.append(f"{index}.{element.text}")
-
-        for n in names:
-            print(n)
-
-        choose = int(input("\nChoose city: "))
-        top_world_locations_names[choose - 1].click()
+        location_names[choose - 1].click()
+        driver.find_element(By.XPATH, value=show_offers_button).click()
         print("\nSelected city: " + names[choose - 1])
 
     while True:
@@ -224,12 +209,7 @@ def Choose_Location():
             choice = int(input("Choose location: "))
 
             if choice in (1, 2, 3):
-                if choice == 1:
-                    return get_top_poland_names()
-                if choice == 2:
-                    return get_other_locations_poland_names()
-                if choice == 3:
-                    return get_top_world_locations_names()
+                return get_location_names(choice)
             else:
                 print("\nIncorrect choice\n")
 
@@ -237,53 +217,66 @@ def Choose_Location():
             print("\nIncorrect choice\n")
 
 def Get_Job_Offers():
-    full_height_job_offers = driver.find_element(By.CSS_SELECTOR, value='#root > div.css-1smbjja > div.css-kkhecm > div > div.css-110u7ph > div:nth-child(1) > div > div').size['height']
-    job_offers = driver.find_element(By.XPATH, value="//div[@class='css-rinife']")
+    full_height_job_offers = driver.find_element(By.XPATH, value='//div[@data-virtuoso-scroller="true"]').size['height']
+    job_offers = driver.find_element(By.XPATH, value="//div[@data-test-id='virtuoso-item-list']")
+    scroll_page = driver.find_element(By.XPATH, value="/html[1]/body[1]/div[1]/div[2]/div[2]/div[1]/div[2]")
     jobs = []  # list for scraped jobs
+    print(full_height_job_offers)
 
-    def scroll():  # function responsible for scrolling site every 612px
-        scroll_script = "arguments[0].scrollTop += 612;"
-        driver.execute_script(scroll_script, job_offers)
-        time.sleep(1)
+    def scroll(px):  # function responsible for scrolling site every 612p
+        scroll_script = f'window.scrollBy(0, {px})'
+        driver.execute_script(scroll_script, scroll_page)
+        time.sleep(0.5)
 
-    job_xpath_selector = 'div[style="position: absolute; left: 0px; top: 0px; height: 68px; width: 100%;"]'
+
+    job_xpath_selector = 'div[data-index="0"]'
 
     # increase top function is responsible for increasing top attribute in xpath selector of single job offer,
     # every increased top is next job offer
-    def increase_top(top, jobs_div_height, job_selector, job_offers_div, job_list):
-        z = top
-        total_iterations = (jobs_div_height - 204 - top) // 68
+    def increase_data_index(top, jobs_div_height, job_selector, job_offers_div, job_list):
+        index = top
+        job_offer_height = 0
+        total_iterations = (jobs_div_height - 204) // 68
         pbar = tqdm(total=total_iterations, colour = "red")
         pbar.set_description("Scraping...", refresh=True)
 
-        while z <= jobs_div_height - 204:  # -204 because the last 204px doesnt contain job offers
-            # print(z) to check top value
-            if z % 612 == 0 and z != 0:  # 612 because site is scrolled with 612px
-                scroll()
+        while index <= 200:  # 200 is max numbers of offers that can take
+            # print(z) # to check top value
+            if index > 3:
+                if index % 1 == 0 and index != 0:  # 612 because site is scrolled with 612px
+                    scroll(100)
 
-            updated_job_selector = job_selector.replace(f'top: 0px', f'top: {z}px')
+            updated_job_selector = job_selector.replace(f'0', f'{index}')
+
             try:
                 z_element = job_offers_div.find_element(By.CSS_SELECTOR, value=updated_job_selector)
-                job_names = z_element.find_element(By.TAG_NAME, value="img")
+                job_offer_height += 68
+                # print(p)  # to check height
+                job_names = z_element.find_element(By.TAG_NAME, value="h2")
                 link_to_job = z_element.find_element(By.TAG_NAME, value="a")
-
-                job_list.append(job_names.get_attribute('alt'))
+                salary = z_element.find_element(By.TAG_NAME, value="span")
+                job_list.append(job_names.text)
                 job_list.append(link_to_job.get_attribute('href'))
+                job_list.append(salary.get_attribute('span'))
                 pbar.update(1)
+                if job_offer_height >= jobs_div_height:
+                    return print("Scraping finished!")
+                index += 1
 
-                z += 68
             except NoSuchElementException:
-                break
-        pbar.close()
+                # print("brak elementu")
+                scroll(-250)
+                continue
+        #pbar.close()
 
     # print(full_height_job_offers) to check height
-    increase_top(0, full_height_job_offers, job_xpath_selector, job_offers, jobs)
+    increase_data_index(0, full_height_job_offers, job_xpath_selector, job_offers, jobs)
 
     if len(jobs) == 0:
         return print("Nie znaleziono żadnych ofert!")
 
     for i in range(len(jobs) - 1, 0, -1):   # adding space between offers for better visibility
-        if i % 2 == 0:  # % 2 because 1 el is name, 2 el is link
+        if i % 3 == 0:  # % 2 because 1 el is name, 2 el is link
             jobs.insert(i, ' ')
 
     for j in jobs:
@@ -368,15 +361,15 @@ def Menu():
                 if choose2 == 2:
                     return Get_Job_Offers()
                 if choose2 == 3:
-                    return
+                    return quit()
         except ValueError:
             print("Incorrect choice")
             choose2 = int(input("Choose: (type 1-3)"))
 
 
 output_file = "jobs.pdf"
-Click_Cookie_Button()
+#Click_Cookie_Button()
 time.sleep(0.5)
-Night_Mode_On()
+#Night_Mode_On()
 print("#########################\nWELCOME TO IT JOB SCRAPER\n#########################\n")
 Menu()
