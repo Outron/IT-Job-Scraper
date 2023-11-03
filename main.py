@@ -220,28 +220,26 @@ def Get_Job_Offers():
     full_height_job_offers = driver.find_element(By.XPATH, value='//div[@data-virtuoso-scroller="true"]').size['height']
     job_offers = driver.find_element(By.XPATH, value="//div[@data-test-id='virtuoso-item-list']")
     scroll_page = driver.find_element(By.XPATH, value="/html[1]/body[1]/div[1]/div[2]/div[2]/div[1]/div[2]")
-    jobs = []  # list for scraped jobs
-    print(full_height_job_offers)
+    job_xpath_selector = 'div[data-index="0"]'
+    jobs = []  # list for scraped jobs and links
+    salaries = []  # list for scraped salaries
 
-    def scroll(px):  # function responsible for scrolling site every 612p
+    def scroll(px):  # function responsible for scrolling site every
         scroll_script = f'window.scrollBy(0, {px})'
         driver.execute_script(scroll_script, scroll_page)
         time.sleep(0.5)
 
-
-    job_xpath_selector = 'div[data-index="0"]'
-
-    # increase top function is responsible for increasing top attribute in xpath selector of single job offer,
-    # every increased top is next job offer
-    def increase_data_index(top, jobs_div_height, job_selector, job_offers_div, job_list):
+    # increase data index function is responsible for increasing data-index div attribute in xpath selector of single job offer,
+    # every increased index is next job offer
+    def increase_data_index(top, jobs_div_height, job_selector, job_offers_div, job_list, salary_list):
         index = top
         job_offer_height = 0
-        total_iterations = (jobs_div_height - 204) // 68
+        total_iterations = jobs_div_height // 68   # 68 is height of single job offer
         pbar = tqdm(total=total_iterations, colour = "red")
         pbar.set_description("Scraping...", refresh=True)
 
-        while index <= 200:  # 200 is max numbers of offers that can take
-            # print(z) # to check top value
+        while index <= total_iterations:
+            print(index)  # to check index value
             if index > 3:
                 if index % 1 == 0 and index != 0:  # 612 because site is scrolled with 612px
                     scroll(100)
@@ -251,50 +249,67 @@ def Get_Job_Offers():
             try:
                 z_element = job_offers_div.find_element(By.CSS_SELECTOR, value=updated_job_selector)
                 job_offer_height += 68
-                # print(p)  # to check height
+                print(job_offer_height)  # to check height
                 job_names = z_element.find_element(By.TAG_NAME, value="h2")
                 link_to_job = z_element.find_element(By.TAG_NAME, value="a")
-                salary = z_element.find_element(By.TAG_NAME, value="span")
+                salary_values = z_element.find_elements(By.TAG_NAME, value="span")
+
                 job_list.append(job_names.text)
                 job_list.append(link_to_job.get_attribute('href'))
-                job_list.append(salary.get_attribute('span'))
+                for element in salary_values:
+                    salary_list.append(element.get_attribute('innerText'))
+
                 pbar.update(1)
                 if job_offer_height >= jobs_div_height:
                     return print("Scraping finished!")
                 index += 1
 
             except NoSuchElementException:
-                # print("brak elementu")
+                print("brak elementu")
                 scroll(-250)
                 continue
-        #pbar.close()
 
-    # print(full_height_job_offers) to check height
-    increase_data_index(0, full_height_job_offers, job_xpath_selector, job_offers, jobs)
+        pbar.close()
+
+    # print(full_height_job_offers) # to check height
+    increase_data_index(0, full_height_job_offers, job_xpath_selector, job_offers, jobs, salaries)
 
     if len(jobs) == 0:
         return print("Nie znaleziono żadnych ofert!")
 
-    for i in range(len(jobs) - 1, 0, -1):   # adding space between offers for better visibility
-        if i % 3 == 0:  # % 2 because 1 el is name, 2 el is link
-            jobs.insert(i, ' ')
+    salary_list_filtered = [salary for salary in salaries if salary.endswith("PLN") or salary == "Undisclosed Salary"]
+
+    def insert_salary_list_and_add_space(JobLink_list, salary_list):
+        place = 0
+        for s in range(2, len(JobLink_list)+len(salary_list), 3):
+            JobLink_list.insert(s, salary_list[place])
+            place += 1
+
+        for space in range(len(JobLink_list) - 1, 0, -1):  # adding space between offers for better visibility
+            if space % 3 == 0:  # % 3 because 1 el is name, 2 el is link, 3 el is salary
+                JobLink_list.insert(space, ' ')
+
+    insert_salary_list_and_add_space(jobs,salary_list_filtered)
 
     for j in jobs:
         print(j)
-    print("\nDo you want to save results in pdf file?")
-    choose = int(input("1.Yes / 2.No"))
-    while True:
-        try:
-            if choose in (1,2):
-                if choose == 1:
-                    Save_Jobs_To_Pdf(jobs,output_file)
-                if choose == 2:
-                    print("Back to menu...\n")
-                    sleep(3)
-                    return Menu()
-        except ValueError:
-            print("Incorrect choice")
-            choose = int(input("1.Yes / 2.No"))
+
+    return jobs
+
+    # print("\nDo you want to save results in pdf file?")
+    # choose = int(input("1.Yes / 2.No"))
+    # while True:
+    #     try:
+    #         if choose in (1,2):
+    #             if choose == 1:
+    #                 Save_Jobs_To_Pdf(jobs,output_file)
+    #             if choose == 2:
+    #                 print("Back to menu...\n")
+    #                 sleep(3)
+    #                 return Menu()
+    #     except ValueError:
+    #         print("Incorrect choice")
+    #         choose = int(input("1.Yes / 2.No"))
 
 def Save_Jobs_To_Pdf(jobs_list, output):
     doc = SimpleDocTemplate(output, pagesize = A4)
@@ -329,9 +344,9 @@ def Menu():
     def Menu_filters():
         print("SELECT YOUR FILTERS:\n")
         print("1.Choose offer type\n2.Choose technology\n3.Choose location\n4.Choose employment type and seniority\n5.Back")
-        choose1 = int(input("Choose: (type 1-4)"))
         while True:
             try:
+                choose1 = int(input("Choose: (type 1-5)"))
                 if choose1 in (1, 2, 3, 4, 5):
                     if choose1 == 1:
                         Choose_Offer_Type()
@@ -348,13 +363,14 @@ def Menu():
                     if choose1 == 5:
                         return Menu()
             except ValueError:
-                print("Incorrect choice")
-                choose1 = int(input("Choose: (type 1-4)"))
+                print("Incorrect choice!")
+
 
     print("1.SET FILTERS\n2.START SCRAPING!\n3.QUIT")
-    choose2 = int(input("Choose: (type 1-3)"))
+
     while True:
         try:
+            choose2 = int(input("Choose: (type 1-3)"))
             if choose2 in (1, 2, 3):
                 if choose2 == 1:
                     return Menu_filters()
@@ -363,8 +379,8 @@ def Menu():
                 if choose2 == 3:
                     return quit()
         except ValueError:
-            print("Incorrect choice")
-            choose2 = int(input("Choose: (type 1-3)"))
+            print("Incorrect choice!")
+
 
 
 output_file = "jobs.pdf"
