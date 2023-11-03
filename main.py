@@ -21,6 +21,7 @@ driver = webdriver.Chrome(options=options)
 driver.set_window_size(800,1000)
 driver.get(url)
 time.sleep(3)
+output_file = "jobs.pdf"
 
 def Click_Cookie_Button():
     now = datetime.now()
@@ -241,8 +242,8 @@ def Get_Job_Offers():
         while index <= total_iterations:
             print(index)  # to check index value
             if index > 3:
-                if index % 1 == 0 and index != 0:  # 612 because site is scrolled with 612px
-                    scroll(100)
+                if index % 8 == 0 and index != 0:  # 612 because site is scrolled with 612px
+                    scroll(612)
 
             updated_job_selector = job_selector.replace(f'0', f'{index}')
 
@@ -266,12 +267,12 @@ def Get_Job_Offers():
 
             except NoSuchElementException:
                 print("brak elementu")
-                scroll(-250)
+                scroll(-800)
                 continue
 
         pbar.close()
 
-    # print(full_height_job_offers) # to check height
+    print(full_height_job_offers)  # to check height
     increase_data_index(0, full_height_job_offers, job_xpath_selector, job_offers, jobs, salaries)
 
     if len(jobs) == 0:
@@ -294,22 +295,20 @@ def Get_Job_Offers():
     for j in jobs:
         print(j)
 
-    return jobs
-
-    # print("\nDo you want to save results in pdf file?")
-    # choose = int(input("1.Yes / 2.No"))
-    # while True:
-    #     try:
-    #         if choose in (1,2):
-    #             if choose == 1:
-    #                 Save_Jobs_To_Pdf(jobs,output_file)
-    #             if choose == 2:
-    #                 print("Back to menu...\n")
-    #                 sleep(3)
-    #                 return Menu()
-    #     except ValueError:
-    #         print("Incorrect choice")
-    #         choose = int(input("1.Yes / 2.No"))
+    print("\nDo you want to save results in pdf file?")
+    choose = int(input("1.Yes / 2.No"))
+    while True:
+        try:
+            if choose in (1,2):
+                if choose == 1:
+                    Save_Jobs_To_Pdf(jobs,output_file)
+                if choose == 2:
+                    print("Back to menu...\n")
+                    sleep(3)
+                    return Menu()
+        except ValueError:
+            print("Incorrect choice")
+            choose = int(input("1.Yes / 2.No"))
 
 def Save_Jobs_To_Pdf(jobs_list, output):
     doc = SimpleDocTemplate(output, pagesize = A4)
@@ -335,10 +334,11 @@ def Save_Jobs_To_Pdf(jobs_list, output):
                 file.append(Paragraph(item, styles['Normal']))
 
     doc.build(file)
-    print("Saved!")
+    print("Jobs saved in PDF!")
     print("Returning to the menu...")
     time.sleep(3)
     return Menu()
+
 
 def Menu():
     def Menu_filters():
@@ -377,13 +377,11 @@ def Menu():
                 if choose2 == 2:
                     return Get_Job_Offers()
                 if choose2 == 3:
-                    return quit()
+                    return driver.quit()
         except ValueError:
             print("Incorrect choice!")
 
 
-
-output_file = "jobs.pdf"
 #Click_Cookie_Button()
 time.sleep(0.5)
 #Night_Mode_On()
