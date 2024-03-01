@@ -387,3 +387,4 @@ time.sleep(0.5)
 #Night_Mode_On()
 print("#########################\nWELCOME TO IT JOB SCRAPER\n#########################\n")
 Menu()
+
