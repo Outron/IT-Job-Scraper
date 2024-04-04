@@ -82,13 +82,13 @@ def choose_offer_type():
 
 def choose_tech():
     # click on tech selection button,then get list of technologies
-    driver.find_element(By.XPATH, value="//button[normalize-space()='Tech']").click()
-    tech_tab = driver.find_element(By.XPATH, value="//div[@class='css-1ff3op5']")
-    tech_list = tech_tab.find_elements(By.XPATH, value="//div[@class='css-1k38fl6']")
+    driver.find_element(By.XPATH, value="//button[@name='mobile_categories_filter_button']").click()
+    tech_tab = driver.find_element(By.XPATH, value="/html/body/div[6]/div[3]/div/div/div/div[2]")
+    tech_list = tech_tab.find_elements(By.TAG_NAME, value="a")
 
     # Creating a list with names of technologies
     tech_name = []
-    for index, element in enumerate(tech_list[1:], start=1):
+    for index, element in enumerate(tech_list[0:], start=1):
         tech_name.append(f"{index}.{element.text}")
 
     # Display names of technologies in columns
@@ -108,9 +108,9 @@ def choose_tech():
     # choosing technology
     while True:
         try:
-            choose = int(input("Choose technology: (type 1-25) "))
-            name_of_technology = tech_name[abs(choose - 1)]
-            tech_list[abs(choose)].click()
+            choose = int(input("Choose technology: (type 1-24) "))
+            name_of_technology = tech_name[abs(choose-1)]
+            tech_list[abs(choose-1)].click()
             return print("Selected technology: " + name_of_technology)
         except ValueError:
             print("Incorrect choice")
@@ -124,11 +124,11 @@ def filter_settings():
 
     # Needed CSS selectors
     more_filters_button_selector = "//button[normalize-space()='More filters']"
-    employment_selector = (
-        "/html[1]/body[1]/div[5]/div[3]/div[1]/div[2]/form[1]/div[4]/fieldset[1]/div[1]"
+    employment_xpath = (
+        "//*[@id='filters-more']/div[4]/fieldset/div"
     )
-    seniority_selector = (
-        "/html[1]/body[1]/div[5]/div[3]/div[1]/div[2]/form[1]/div[3]/fieldset[1]/div[1]"
+    experience_xpath = (
+        "//*[@id='filters-more']/div[3]/fieldset/div"
     )
     apply_settings_button = "button[type='submit']"
 
@@ -136,15 +136,15 @@ def filter_settings():
     driver.find_element(By.XPATH, value=more_filters_button_selector).click()
     time.sleep(1)
     # Take employment buttons and names
-    employment_type = driver.find_element(By.XPATH, value=employment_selector)
+    employment_type = driver.find_element(By.XPATH, value=employment_xpath)
     employment_name = employment_type.find_elements(By.TAG_NAME, value="label")
     emp_button = employment_type.find_elements(By.TAG_NAME, value="input")
     name_type_filtered = extract_names(employment_name)
 
     # Take seniority buttons and names
-    seniority_type = driver.find_element(By.XPATH, value=seniority_selector)
-    seniority_name = seniority_type.find_elements(By.TAG_NAME, value="label")
-    sen_button = seniority_type.find_elements(By.TAG_NAME, value="input")
+    experience_type = driver.find_element(By.XPATH, value=experience_xpath)
+    seniority_name = experience_type.find_elements(By.TAG_NAME, value="label")
+    sen_button = experience_type.find_elements(By.TAG_NAME, value="input")
     name_type_filtered.extend(extract_names(seniority_name))
 
     # Print the filtered and enumerated names of employment
@@ -176,13 +176,13 @@ def filter_settings():
 
     # Make seniority type choose
     while True:
-        print("Choose seniority type: ")
+        print("Choose experience type: ")
         try:
             choose_sen = int(input())
             if choose_sen in range(1, 6):
                 sen_button[choose_sen - 1].click()
                 print(
-                    "Selected type of seniority: "
+                    "Selected type of experience: "
                     + name_type_filtered[choose_sen + 4]
                     + "\n"
                 )
@@ -281,7 +281,7 @@ def get_job_offers():
         By.XPATH, value="//div[@data-test-id='virtuoso-item-list']"
     )
     scroll_page = driver.find_element(
-        By.XPATH, value="/html[1]/body[1]/div[1]/div[2]/div[2]/div[1]/div[2]"
+        By.XPATH, value="//div[@data-viewport-type='window']"
     )
     job_xpath_selector = 'div[data-index="0"]'
     jobs = []  # list for scraped jobs and links
@@ -294,9 +294,7 @@ def get_job_offers():
 
     # increase data index function is responsible for increasing data-index div attribute in xpath selector of single job offer,
     # every increased index is next job offer
-    def increase_data_index(
-        top, jobs_div_height, job_selector, job_offers_div, job_list, salary_list
-    ):
+    def increase_data_index(top, jobs_div_height, job_selector, job_offers_div, job_list, salary_list):
         index = top
         job_offer_height = 0
         total_iterations = jobs_div_height // 68  # 68 is height of single job offer
@@ -421,11 +419,11 @@ def menu():
     def menu_filters():
         print("SELECT YOUR FILTERS:\n")
         print(
-            "1.Choose offer type\n2.Choose technology\n3.Choose location\n4.Choose employment type and seniority\n5.Back"
+            "1.Choose offer type\n2.Choose technology\n3.Choose location\n4.Choose employment type and experience\n5.Back"
         )
         while True:
             try:
-                choose1 = int(input("Choose: (type 1-5)"))
+                choose1 = int(input("Choose: (type 1-5) "))
                 if choose1 in (1, 2, 3, 4, 5):
                     if choose1 == 1:
                         choose_offer_type()
@@ -448,7 +446,7 @@ def menu():
 
     while True:
         try:
-            choose2 = int(input("Choose: (type 1-3)"))
+            choose2 = int(input("Choose: (type 1-3)  "))
             if choose2 in (1, 2, 3):
                 if choose2 == 1:
                     return menu_filters()
