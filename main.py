@@ -15,7 +15,7 @@ from time import sleep
 url = "https://justjoin.it"
 options = webdriver.ChromeOptions()
 
-#options.add_argument("--headless=new")     #HEADLESS MODE
+# options.add_argument("--headless=new")     #HEADLESS MODE
 options.add_experimental_option("detach", True)  # DETACH MODE
 driver = webdriver.Chrome(options=options)
 driver.set_window_size(800, 1000)
@@ -28,32 +28,15 @@ def click_cookie_button():
     now = datetime.now()
     t = now.strftime("%H")
     if int(t) >= 22 or int(t) <= 6:
-        driver.find_element(By.XPATH("///*[@id='__next']/div[3]/button"))
+        driver.find_element(By.XPATH, value="//*[@id='cookiescript_accept']").click()
     else:
         driver.find_element(
-            By.CSS_SELECTOR, value="#root > div.jss219.jss220 > button"
-        ).click()
-
-
-def night_mode_on():
-    now = datetime.now()
-    t = now.strftime("%H")
-    if int(t) >= 22 or int(t) <= 6:
-        driver.find_element(
-            By.CSS_SELECTOR,
-            value="#root > header > div > div.jss17 > div.jss161 > span > span.MuiButtonBase-root-64.MuiIconButton-root-74.jss183.MuiSwitch-switchBase-176.jss165.MuiSwitch-colorSecondary-178 > span > input",
-        ).click()
-    else:
-        driver.find_element(
-            By.CSS_SELECTOR,
-            value="#root > header > div > div.jss17 > div.jss161 > span > span.MuiButtonBase-root-64.MuiIconButton-root-74.jss182.MuiSwitch-switchBase-175.jss165.MuiSwitch-colorSecondary-177 > span > input",
+            By.CSS_SELECTOR, value="//*[@id='cookiescript_accept']"
         ).click()
 
 
 def choose_offer_type():
-    offer_type_div = driver.find_element(
-        By.XPATH, value="//div[@role='tablist']"
-    )
+    offer_type_div = driver.find_element(By.XPATH, value="//div[@role='tablist']")
     offer_type_buttons = offer_type_div.find_elements(By.TAG_NAME, value="button")
 
     while True:
@@ -82,8 +65,12 @@ def choose_offer_type():
 
 def choose_tech():
     # click on tech selection button,then get list of technologies
-    driver.find_element(By.XPATH, value="//button[@name='mobile_categories_filter_button']").click()
-    tech_tab = driver.find_element(By.XPATH, value="/html/body/div[6]/div[3]/div/div/div/div[2]")
+    driver.find_element(
+        By.XPATH, value="//button[@name='mobile_categories_filter_button']"
+    ).click()
+    tech_tab = driver.find_element(
+        By.XPATH, value="/html/body/div[6]/div[3]/div/div/div/div[2]"
+    )
     tech_list = tech_tab.find_elements(By.TAG_NAME, value="a")
 
     # Creating a list with names of technologies
@@ -109,8 +96,8 @@ def choose_tech():
     while True:
         try:
             choose = int(input("Choose technology: (type 1-24) "))
-            name_of_technology = tech_name[abs(choose-1)]
-            tech_list[abs(choose-1)].click()
+            name_of_technology = tech_name[abs(choose - 1)]
+            tech_list[abs(choose - 1)].click()
             return print("Selected technology: " + name_of_technology)
         except ValueError:
             print("Incorrect choice")
@@ -124,12 +111,8 @@ def filter_settings():
 
     # Needed CSS selectors
     more_filters_button_selector = "//button[normalize-space()='More filters']"
-    employment_xpath = (
-        "//*[@id='filters-more']/div[4]/fieldset/div"
-    )
-    experience_xpath = (
-        "//*[@id='filters-more']/div[3]/fieldset/div"
-    )
+    employment_xpath = "//*[@id='filters-more']/div[4]/fieldset/div"
+    experience_xpath = "//*[@id='filters-more']/div[3]/fieldset/div"
     apply_settings_button = "button[type='submit']"
 
     # More filters button click
@@ -198,35 +181,23 @@ def filter_settings():
 
 
 def choose_location():
-
-    location_button_xpath = (
-        "//button[@name='location_filter_button']"
-    )
-    poland_locations_xpath = (
-        "//*[@ id='filters-location-modal-form']/div/div[3]/div"
-
-    )
+    location_button_xpath = "//button[@name='location_filter_button']"
+    poland_locations_xpath = "//*[@ id='filters-location-modal-form']/div/div[3]/div"
     other_locations_poland_xpath = (
         "//*[@id='filters-location-modal-form']/div/div[5]/div"
     )
-    top_world_locations_xpath = (
-        "//*[@id='filters-location-modal-form']/div/div[4]/div"
-    )
+    top_world_locations_xpath = "//*[@id='filters-location-modal-form']/div/div[4]/div"
     show_offers_button = "//button[@type='submit']"
 
     # CLICK BUTTONS
     driver.find_element(By.XPATH, value=location_button_xpath).click()
     time.sleep(0.5)
 
-    top_poland_locations = driver.find_element(
-        By.XPATH, value=poland_locations_xpath
-    )
+    top_poland_locations = driver.find_element(By.XPATH, value=poland_locations_xpath)
     other_locations_poland = driver.find_element(
         By.XPATH, value=other_locations_poland_xpath
     )
-    top_world_locations = driver.find_element(
-        By.XPATH, value=top_world_locations_xpath
-    )
+    top_world_locations = driver.find_element(By.XPATH, value=top_world_locations_xpath)
 
     locations_types = [
         "1.Top Poland locations",
@@ -292,9 +263,15 @@ def get_job_offers():
         driver.execute_script(scroll_script, scroll_page)
         time.sleep(0.5)
 
-    # increase data index function is responsible for increasing data-index div attribute in xpath selector of single job offer,
-    # every increased index is next job offer
-    def increase_data_index(top, jobs_div_height, job_selector, job_offers_div, job_list, salary_list):
+    """
+     increase_data_index function is responsible for increasing data-index div attribute in xpath selector 
+     of single job offer,
+     every increased index is next job offer
+    """
+
+    def increase_data_index(
+        top, jobs_div_height, job_selector, job_offers_div, job_list, salary_list
+    ):
         index = top
         job_offer_height = 0
         total_iterations = jobs_div_height // 68  # 68 is height of single job offer
@@ -419,7 +396,8 @@ def menu():
     def menu_filters():
         print("SELECT YOUR FILTERS:\n")
         print(
-            "1.Choose offer type\n2.Choose technology\n3.Choose location\n4.Choose employment type and experience\n5.Back"
+            "1.Choose offer type\n2.Choose technology\n3.Choose location\n"
+            "4.Choose employment type and experience\n5.Back"
         )
         while True:
             try:
@@ -458,9 +436,8 @@ def menu():
             print("Incorrect choice!")
 
 
-# Click_Cookie_Button()
+click_cookie_button()
 time.sleep(0.5)
-# Night_Mode_On()
 print(
     "#########################\nWELCOME TO IT JOB SCRAPER\n#########################\n"
 )
