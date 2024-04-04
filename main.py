@@ -198,34 +198,36 @@ def filter_settings():
 
 
 def choose_location():
-    # CSS SELECTORS
-    location_button_selector = (
-        "/html[1]/body[1]/div[1]/div[2]/div[2]/div[1]/div[1]/div[1]/button[1]"
+
+    location_button_xpath = (
+        "//button[@name='location_filter_button']"
     )
-    poland_locations_selector = (
-        "/html[1]/body[1]/div[5]/div[3]/div[1]/div[1]/form[1]/div[1]/div[3]/div[1]"
+    poland_locations_xpath = (
+        "//*[@ id='filters-location-modal-form']/div/div[3]/div"
+
     )
-    other_locations_poland_selector = (
-        "/html[1]/body[1]/div[5]/div[3]/div[1]/div[1]/form[1]/div[1]/div[5]/div[1]"
+    other_locations_poland_xpath = (
+        "//*[@id='filters-location-modal-form']/div/div[5]/div"
     )
-    top_world_locations_selector = (
-        "/html[1]/body[1]/div[5]/div[3]/div[1]/div[1]/form[1]/div[1]/div[4]/div[1]"
+    top_world_locations_xpath = (
+        "//*[@id='filters-location-modal-form']/div/div[4]/div"
     )
     show_offers_button = "//button[@type='submit']"
 
     # CLICK BUTTONS
-    driver.find_element(By.XPATH, value=location_button_selector).click()
+    driver.find_element(By.XPATH, value=location_button_xpath).click()
     time.sleep(0.5)
 
     top_poland_locations = driver.find_element(
-        By.XPATH, value=poland_locations_selector
+        By.XPATH, value=poland_locations_xpath
     )
     other_locations_poland = driver.find_element(
-        By.XPATH, value=other_locations_poland_selector
+        By.XPATH, value=other_locations_poland_xpath
     )
     top_world_locations = driver.find_element(
-        By.XPATH, value=top_world_locations_selector
+        By.XPATH, value=top_world_locations_xpath
     )
+
     locations_types = [
         "1.Top Poland locations",
         "2.Other locations Poland",
@@ -248,6 +250,8 @@ def choose_location():
 
         for n in names:
             print(n)
+
+        # FIX THIS  out of range
 
         choose = int(input("Choose city: "))
         location_names[choose - 1].click()
